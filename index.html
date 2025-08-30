@@ -3,302 +3,163 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>我的简易网页示例</title>
+  <title>Score Viewer Demo · 乐谱选择与图片切换示例</title>
   <style>
-    /* ===== 基础样式与主题变量 ===== */
-    :root {
-      --bg: #f7f8fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --primary: #2563eb;
-      --primary-contrast: #ffffff;
-      --ring: rgba(37, 99, 235, 0.25);
-      --shadow: 0 10px 25px rgba(0,0,0,0.06);
-      --radius: 16px;
-      --space: 16px;
-      --maxw: 1100px;
+    :root{
+      --bg:#fafafa;--card:#fff;--text:#222;--muted:#6b7280;--primary:#e11d48;--ring:rgba(225,29,72,.2);
+      --radius:14px;--shadow:0 10px 24px rgba(0,0,0,.06);--line:1px solid rgba(0,0,0,.08)
     }
-    [data-theme="dark"] {
-      --bg: #0b1220;
-      --card: #111827;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --primary: #60a5fa;
-      --primary-contrast: #0b1220;
-      --ring: rgba(96, 165, 250, 0.25);
-      --shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--bg); color: var(--text);
-      line-height: 1.6;
-    }
-    a { color: var(--primary); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    .container { width: min(100% - 2*var(--space), var(--maxw)); margin-inline: auto; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 16px; border: 0; border-radius: 999px; cursor: pointer;
-      background: var(--primary); color: var(--primary-contrast); font-weight: 600;
-      box-shadow: var(--shadow); transition: transform .06s ease, box-shadow .2s ease;
-    }
-    .btn:focus { outline: none; box-shadow: 0 0 0 4px var(--ring); }
-    .btn:active { transform: translateY(1px); }
-
-    /* ===== 顶部导航 ===== */
-    header {
-      position: sticky; top: 0; z-index: 50; backdrop-filter: saturate(150%) blur(8px);
-      background: color-mix(in oklab, var(--bg) 90%, transparent);
-      border-bottom: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-    }
-    .nav {
-      display: flex; align-items: center; justify-content: space-between; padding: 12px 0;
-    }
-    .brand { font-weight: 800; letter-spacing: .5px; }
-    .links { display: flex; gap: 14px; }
-    .links a { padding: 8px 10px; border-radius: 10px; }
-    .links a:hover { background: color-mix(in oklab, var(--text) 10%, transparent); text-decoration: none; }
-
-    /* ===== 英雄区（大图+标题） ===== */
-    .hero {
-      display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(16px, 4vw, 40px); align-items: center;
-      padding: clamp(20px, 4vw, 40px) 0;
-    }
-    .hero h1 { font-size: clamp(26px, 4vw, 42px); line-height: 1.2; margin: 0 0 10px; }
-    .hero p { color: var(--muted); margin: 0 0 18px; }
-    .hero .media {
-      aspect-ratio: 16/10; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
-    }
-    .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    /* ===== 内容卡片区 ===== */
-    .grid {
-      display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
-    .card {
-      background: var(--card); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
-      border: 1px solid color-mix(in oklab, var(--text) 8%, transparent);
-    }
-    .card h3 { margin: 0 0 8px; font-size: 18px; }
-    .card p { margin: 0; color: var(--muted); }
-
-    /* ===== 表单选项区 ===== */
-    form.settings { margin-top: 8px; display: grid; gap: 14px; }
-    .field { display: grid; gap: 6px; }
-    label { font-weight: 600; }
-    select, input[type="text"], textarea {
-      width: 100%; padding: 10px 12px; border-radius: 12px;
-      border: 1px solid color-mix(in oklab, var(--text) 15%, transparent);
-      background: var(--card); color: var(--text);
-      outline: none; box-shadow: none; transition: box-shadow .15s ease, border-color .15s ease;
-    }
-    select:focus, input[type="text"]:focus, textarea:focus {
-      border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring);
-    }
-
-    .choice-row { display: flex; flex-wrap: wrap; gap: 14px; }
-    .chip {
-      display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px;
-      border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
-      background: color-mix(in oklab, var(--card) 80%, transparent);
-      cursor: pointer; user-select: none;
-    }
-
-    /* ===== 图片画廊 ===== */
-    .gallery { margin-top: 8px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-    .gallery figure { margin: 0; border-radius: 14px; overflow: hidden; border: 1px solid color-mix(in oklab, var(--text) 8%, transparent); box-shadow: var(--shadow); }
-    .gallery img { width: 100%; height: 140px; object-fit: cover; display: block; }
-    .gallery figcaption { padding: 8px 10px; font-size: 13px; color: var(--muted); background: var(--card); }
-
-    /* ===== 页脚 ===== */
-    footer { color: var(--muted); padding: 30px 0 60px; text-align: center; }
-
-    /* ===== 小屏适配 ===== */
-    @media (max-width: 820px) {
-      .hero { grid-template-columns: 1fr; }
-      .links { display: none; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    .container{width:min(1100px,100% - 32px);margin:24px auto}
+    header p{margin:0 0 18px;color:var(--muted)}
+    .grid{display:grid;gap:16px;grid-template-columns:repeat(2,1fr)}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:var(--line);padding:16px}
+    h2{font-size:18px;margin:0 0 12px;color:#d62249}
+    label{display:inline-block;min-width:92px}
+    select{border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:6px 10px;font-size:14px;background:var(--card);color:var(--text)}
+    select:focus{outline:none;box-shadow:0 0 0 4px var(--ring)}
+    .title{font-size:28px;text-align:center;margin:28px 0 8px}
+    .subtitle{font-size:12px;color:var(--muted);text-align:center;margin:0 0 18px}
+    .sheetWrap{background:var(--card);border-radius:var(--radius);border:var(--line);box-shadow:var(--shadow);padding:8px 8px 16px}
+    .sheet{display:block;margin:0 auto;max-width:100%;transform-origin:top center}
+    .legend{margin-top:22px;background:var(--card);border:var(--line);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px}
+    .legend h3{margin:0 0 8px}
+    .row{display:flex;gap:8px;align-items:center;margin:8px 0}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="container nav" role="navigation" aria-label="主导航">
-      <div class="brand">🌟 我的网页</div>
-      <nav class="links">
-        <a href="#about">关于</a>
-        <a href="#options">选项</a>
-        <a href="#gallery">图片</a>
-      </nav>
-    </div>
-  </header>
+  <div class="container">
+    <header>
+      <p>This is a demo page that mimics an interactive score viewer. 你可以选择方法、乐谱并切换不同的乐谱图片。</p>
+    </header>
 
-  <main class="container">
-    <!-- 英雄区：标题/描述/按钮 + 大图 -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div>
-        <h1 id="hero-title">一个简单、可直接打开的网页示例</h1>
-        <p>它包含图片、选项和文字。下载为 .html 双击打开即可在浏览器里查看，或放到手机上也能用。</p>
-        <button class="btn" id="actionBtn" type="button">🚀 点我试试</button>
-      </div>
-      <div class="media" aria-hidden="true">
-        <img id="heroImg" src="https://picsum.photos/seed/hero-1/960/600" alt="宽幅示例图片"/>
-      </div>
-    </section>
-
-    <!-- 三列介绍卡片 -->
-    <section id="about" class="grid" aria-label="说明卡片">
-      <article class="card">
-        <h3>✨ 纯前端</h3>
-        <p>单个 HTML 文件，无需服务器即可打开。</p>
-      </article>
-      <article class="card">
-        <h3>📱 自适应</h3>
-        <p>在电脑、平板、手机上都能正常显示。</p>
-      </article>
-      <article class="card">
-        <h3>🧩 可定制</h3>
-        <p>下面的表单可以切换主题、改变图片风格。</p>
-      </article>
-    </section>
-
-    <!-- 选项表单 -->
-    <section id="options" class="card" aria-labelledby="options-title" style="margin-top: 20px;">
-      <h2 id="options-title" style="margin-top:0">选项设置</h2>
-      <form class="settings" onsubmit="return false">
-        <div class="field">
-          <label for="themeSelect">主题颜色</label>
-          <select id="themeSelect" aria-label="主题颜色选择">
-            <option value="light" selected>浅色（默认）</option>
-            <option value="dark">深色</option>
+    <!-- 控件区：两张卡片 -->
+    <section class="grid">
+      <div class="card">
+        <h2>Select method</h2>
+        <div class="row"><label for="model">Model:</label>
+          <select id="model">
+            <option>deepgru</option>
+            <option>transformer</option>
+            <option>baseline</option>
           </select>
         </div>
-
-        <div class="field">
-          <label>图片风格</label>
-          <div class="choice-row" role="group" aria-label="图片风格选择">
-            <label class="chip"><input type="radio" name="style" value="city" checked> 城市</label>
-            <label class="chip"><input type="radio" name="style" value="nature"> 自然</label>
-            <label class="chip"><input type="radio" name="style" value="abstract"> 抽象</label>
-          </div>
+        <div class="row"><label for="repr">Representation:</label>
+          <select id="repr">
+            <option>P-V</option>
+            <option>P-T</option>
+            <option>Note-Seq</option>
+          </select>
         </div>
+      </div>
 
-        <div class="field">
-          <label for="note">给这个页面留一句话</label>
-          <input id="note" type="text" placeholder="例如：这是我的第一个网页！" />
+      <div class="card">
+        <h2>Select score</h2>
+        <div class="row"><label for="seed">Seed:</label>
+          <select id="seed"></select>
         </div>
-
-        <div>
-          <button class="btn" id="saveBtn" type="button">💾 保存设置</button>
+        <div class="row"><label for="subset">Subset:</label>
+          <select id="subset">
+            <option value="test" selected>test</option>
+            <option value="train">train</option>
+          </select>
         </div>
-
-        <details>
-          <summary>查看一些额外文字说明</summary>
-          <p style="margin-top:8px">本页面示例使用 <code>HTML + CSS + JS</code> 构建，图片来自公开占位图服务（picsum）。你可以把它改成自己的图片与文案。</p>
-        </details>
-      </form>
-    </section>
-
-    <!-- 图片画廊 -->
-    <section id="gallery" class="card" aria-labelledby="gallery-title" style="margin-top: 20px;">
-      <h2 id="gallery-title" style="margin-top:0">图片画廊</h2>
-      <div class="gallery" id="galleryWrap">
-        <!-- JS 会按风格填充图片 -->
+        <div class="row"><label for="score">Score:</label>
+          <select id="score"></select>
+        </div>
       </div>
     </section>
-  </main>
 
-  <footer>
-    © <span id="year"></span> 我的网页示例 · 由你亲手定制
-  </footer>
+    <h1 class="title" id="title">Score Title</h1>
+    <p class="subtitle" id="subtitle">demo.xml</p>
+
+    <section class="sheetWrap">
+      <img id="scoreImg" class="sheet" src="images/score1.png" alt="score image"/>
+    </section>
+
+    <section class="legend">
+      <h3>LEGEND:</h3>
+      <ul>
+        <li>下拉框会切换不同的乐谱 <em>图片文件</em>（并非实时渲染乐谱）。</li>
+        <li>你可以将自己的图片放入 <code>images/</code> 目录，并在下方 JS 的 <code>DATA</code> 中配置。</li>
+      </ul>
+    </section>
+  </div>
 
   <script>
-    // ===== 简单的交互逻辑 =====
-    const $ = (sel) => document.querySelector(sel);
-    const themeSelect = $('#themeSelect');
-    const heroImg = $('#heroImg');
-    const actionBtn = $('#actionBtn');
-    const saveBtn = $('#saveBtn');
-    const noteInput = $('#note');
-    const galleryWrap = $('#galleryWrap');
-
-    // 初始化年份
-    $('#year').textContent = new Date().getFullYear();
-
-    // 主题切换
-    themeSelect.addEventListener('change', (e) => {
-      const val = e.target.value;
-      document.documentElement.setAttribute('data-theme', val === 'dark' ? 'dark' : 'light');
-    });
-
-    // 图片风格映射
-    const styleSeeds = {
-      city: ['city-1','city-2','city-3','city-4','city-5','city-6'],
-      nature: ['nature-1','nature-2','nature-3','nature-4','nature-5','nature-6'],
-      abstract: ['abs-1','abs-2','abs-3','abs-4','abs-5','abs-6'],
+    const DATA = {
+      test: {
+        seeds: {
+          33: {
+            title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
+            items: [
+              { key: '5', img: 'images/score1.png', label: '5.xml' },
+              { key: '6', img: 'images/score2.png', label: '6.xml' }
+            ]
+          },
+          12: {
+            title: 'Prelude in C — Demo',
+            items: [
+              { key: '1', img: 'images/score3.png', label: '1.xml' },
+              { key: '2', img: 'images/score4.png', label: '2.xml' }
+            ]
+          }
+        }
+      },
+      train: {
+        seeds: {
+          1: {
+            title: 'Training Piece A — Demo',
+            items: [
+              { key: 'a', img: 'images/score5.png', label: 'a.xml' },
+              { key: 'b', img: 'images/score6.png', label: 'b.xml' }
+            ]
+          }
+        }
+      }
     };
 
-    function renderGallery(style = 'city') {
-      const seeds = styleSeeds[style] || styleSeeds.city;
-      galleryWrap.innerHTML = seeds.map((s, i) => `
-        <figure>
-          <img src="https://picsum.photos/seed/${style}-${i}/480/320" alt="示例图片 ${i+1}" loading="lazy"/>
-          <figcaption>图片 ${i+1} · 风格：${style}</figcaption>
-        </figure>
-      `).join('');
-      // 同步英雄图
-      heroImg.src = `https://picsum.photos/seed/${style}-hero/960/600`;
+    const seedSel = document.getElementById('seed');
+    const subsetSel = document.getElementById('subset');
+    const scoreSel = document.getElementById('score');
+    const img = document.getElementById('scoreImg');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+
+    function fillSeeds(){
+      const subset = subsetSel.value;
+      const seeds = DATA[subset]?.seeds || {};
+      seedSel.innerHTML = Object.keys(seeds).map(k => `<option value="${k}">${k}</option>`).join('');
     }
 
-    // 监听图片风格单选框
-    document.addEventListener('change', (e) => {
-      if (e.target.name === 'style') {
-        renderGallery(e.target.value);
-      }
-    });
+    function fillScores(){
+      const subset = subsetSel.value;
+      const seed = seedSel.value;
+      const items = (DATA[subset]?.seeds?.[seed]?.items) || [];
+      scoreSel.innerHTML = items.map(it => `<option value="${it.key}">${it.key}</option>`).join('');
+    }
 
-    // “点我试试” 按钮
-    actionBtn.addEventListener('click', () => {
-      actionBtn.textContent = '✅ 已点击！欢迎来到你的网页';
-      actionBtn.disabled = true;
-      setTimeout(() => { actionBtn.disabled = false; actionBtn.textContent = '🚀 再点一次'; }, 1600);
-    });
+    function updateView(){
+      const subset = subsetSel.value;
+      const seed = seedSel.value;
+      const key = scoreSel.value;
+      const seedObj = DATA[subset]?.seeds?.[seed];
+      if(!seedObj){return}
+      const item = seedObj.items.find(i => i.key == key) || seedObj.items[0];
+      titleEl.textContent = seedObj.title;
+      subtitleEl.textContent = (item?.label || key) + '';
+      img.src = item.img;
+    }
 
-    // 保存设置（演示：保存在本地存储）
-    saveBtn.addEventListener('click', () => {
-      const theme = themeSelect.value;
-      const style = (document.querySelector('input[name="style"]:checked') || {}).value || 'city';
-      const note = noteInput.value.trim();
-      const data = { theme, style, note };
-      localStorage.setItem('my-simple-site', JSON.stringify(data));
-      if (note) document.title = note + ' — 我的简易网页';
-      alert('已保存到本地（localStorage）。刷新页面仍会保留设置。');
-    });
+    subsetSel.addEventListener('change', () => { fillSeeds(); fillScores(); updateView(); });
+    seedSel.addEventListener('change', () => { fillScores(); updateView(); });
+    scoreSel.addEventListener('change', updateView);
 
-    // 载入设置
-    (function loadSaved(){
-      try {
-        const raw = localStorage.getItem('my-simple-site');
-        if (!raw) { renderGallery('city'); return; }
-        const data = JSON.parse(raw);
-        if (data.theme) themeSelect.value = data.theme;
-        document.documentElement.setAttribute('data-theme', data.theme === 'dark' ? 'dark' : 'light');
-        if (data.style) {
-          const radio = document.querySelector(`input[name="style"][value="${data.style}"]`);
-          if (radio) radio.checked = true;
-          renderGallery(data.style);
-        } else {
-          renderGallery('city');
-        }
-        if (data.note) noteInput.value = data.note;
-      } catch (e) {
-        renderGallery('city');
-      }
-    })();
+    fillSeeds();
+    fillScores();
+    updateView();
   </script>
 </body>
 </html>
