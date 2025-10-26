@@ -41,47 +41,33 @@
         <h2>Select method</h2>
         <div class="row"><label for="model">Model:</label>
           <select id="model">
-            <option>PSR</option>
-            <option>PDR</option>
+            <option>deepgru</option>
+            <option>transformer</option>
+            <option>baseline</option>
           </select>
         </div>
         <div class="row"><label for="repr">Representation:</label>
           <select id="repr">
-            <option>phrase</option>
-            <option>pitch contour and rhythmic pattern</option>
+            <option>P-V</option>
+            <option>P-T</option>
+            <option>Note-Seq</option>
           </select>
         </div>
       </div>
 
       <div class="card">
         <h2>Select score</h2>
-        <div class="row"><label for="difficulty">Difficulty level:</label>
-          <select id="difficulty">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
+        <div class="row"><label for="seed">Seed:</label>
+          <select id="seed"></select>
+        </div>
+        <div class="row"><label for="subset">Subset:</label>
+          <select id="subset">
+            <option value="test" selected>test</option>
+            <option value="train">train</option>
           </select>
         </div>
         <div class="row"><label for="score">Score:</label>
-          <select id="score">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="15">15</option>
-            <option value="16">16</option>
-          </select>
+          <select id="score"></select>
         </div>
       </div>
     </section>
@@ -135,22 +121,31 @@
       }
     };
 
-    const difficultySel = document.getElementById('difficulty');
+    const seedSel = document.getElementById('seed');
+    const subsetSel = document.getElementById('subset');
     const scoreSel = document.getElementById('score');
     const img = document.getElementById('scoreImg');
     const titleEl = document.getElementById('title');
     const subtitleEl = document.getElementById('subtitle');
 
+    function fillSeeds(){
+      const subset = subsetSel.value;
+      const seeds = DATA[subset]?.seeds || {};
+      seedSel.innerHTML = Object.keys(seeds).map(k => `<option value="${k}">${k}</option>`).join('');
+    }
+
     function fillScores(){
-      const difficulty = difficultySel.value;
-      const items = (DATA.test?.seeds?.[difficulty]?.items) || [];
+      const subset = subsetSel.value;
+      const seed = seedSel.value;
+      const items = (DATA[subset]?.seeds?.[seed]?.items) || [];
       scoreSel.innerHTML = items.map(it => `<option value="${it.key}">${it.key}</option>`).join('');
     }
 
     function updateView(){
-      const difficulty = difficultySel.value;
+      const subset = subsetSel.value;
+      const seed = seedSel.value;
       const key = scoreSel.value;
-      const seedObj = DATA.test?.seeds?.[difficulty];
+      const seedObj = DATA[subset]?.seeds?.[seed];
       if(!seedObj){return}
       const item = seedObj.items.find(i => i.key == key) || seedObj.items[0];
       titleEl.textContent = seedObj.title;
@@ -158,9 +153,11 @@
       img.src = item.img;
     }
 
-    difficultySel.addEventListener('change', () => { fillScores(); updateView(); });
+    subsetSel.addEventListener('change', () => { fillSeeds(); fillScores(); updateView(); });
+    seedSel.addEventListener('change', () => { fillScores(); updateView(); });
     scoreSel.addEventListener('change', updateView);
 
+    fillSeeds();
     fillScores();
     updateView();
   </script>
