@@ -84,112 +84,75 @@
   </div>
 
   <script>
-    const DATA = {
-      phrase: {
-        Difficulty: {
-          1: {
-            title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
-            items: [
-              { key: '1', img: 'images/score1.png', label: '1.midi' },
-              { key: '2', img: 'images/score2.png', label: '2.midi' }   
-            ]
-          },
-          2: {
-            title: 'Prelude in C — Demo',
-            items: [
-              { key: '3', img: 'images/score3.png', label: '3.midi' },
-              { key: '4', img: 'images/score4.png', label: '4.midi' }
-            ]
-          },
-          3: {
-            title: 'Prelude in C — Demo',
-            items: [
-              { key: '5', img: 'images/score5.png', label: '5.midi' },
-              { key: '6', img: 'images/score6.png', label: '6.midi' }
-            ]
-          },
-          4: {
-            title: 'Prelude in C — Demo',
-            items: [
-              { key: '7', img: 'images/score7.png', label: '7.midi' },
-              { key: '8', img: 'images/score8.png', label: '8.midi' }
-            ]
-          }
-        }
-      },
-      pitch contour and rhythmic pattern: {
-        Difficulty: {
-          1: {
-            title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
-            items: [
-              { key: '1', img: 'images/score1.png', label: '1.midi' },
-              { key: '2', img: 'images/score2.png', label: '2.midi' }   
-            ]
-          },
-          2: {
-            title: 'Prelude in C — Demo',
-            items: [
-              { key: '3', img: 'images/score3.png', label: '3.midi' },
-              { key: '4', img: 'images/score4.png', label: '4.midi' }
-            ]
-          },
-          3: {
-            title: 'Prelude in C — Demo',
-            items: [
-              { key: '5', img: 'images/score5.png', label: '5.midi' },
-              { key: '6', img: 'images/score6.png', label: '6.midi' }
-            ]
-          },
-          4: {
-            title: 'Prelude in C — Demo',
-            items: [
-              { key: '7', img: 'images/score7.png', label: '7.midi' },
-              { key: '8', img: 'images/score8.png', label: '8.midi' }
-            ]
-          }
-        }
-      }
-    };
-
-    const seedSel = document.getElementById('seed');
-    const subsetSel = document.getElementById('subset');
-    const scoreSel = document.getElementById('score');
-    const img = document.getElementById('scoreImg');
-    const titleEl = document.getElementById('title');
-    const subtitleEl = document.getElementById('subtitle');
-
-    function fillSeeds(){
-      const subset = subsetSel.value;
-      const seeds = DATA[subset]?.seeds || {};
-      seedSel.innerHTML = Object.keys(seeds).map(k => `<option value="${k}">${k}</option>`).join('');
+const DATA = {
+  phrase: {
+    Difficulty: {
+      1: { title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         },
+      2: { title: 'Prelude in C — Demo',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         },
+      3: { title: 'Prelude in C — Demo',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         },
+      4: { title: 'Prelude in C — Demo',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         }
     }
-
-    function fillScores(){
-      const subset = subsetSel.value;
-      const seed = seedSel.value;
-      const items = (DATA[subset]?.seeds?.[seed]?.items) || [];
-      scoreSel.innerHTML = items.map(it => `<option value="${it.key}">${it.key}</option>`).join('');
+  },
+  "pitch contour and rhythmic pattern": {
+    Difficulty: {
+      1: { title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         },
+      2: { title: 'Prelude in C — Demo',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         },
+      3: { title: 'Prelude in C — Demo',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         },
+      4: { title: 'Prelude in C — Demo',
+           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
+         }
     }
+  }
+};
 
-    function updateView(){
-      const subset = subsetSel.value;
-      const seed = seedSel.value;
-      const key = scoreSel.value;
-      const seedObj = DATA[subset]?.seeds?.[seed];
-      if(!seedObj){return}
-      const item = seedObj.items.find(i => i.key == key) || seedObj.items[0];
-      titleEl.textContent = seedObj.title;
-      subtitleEl.textContent = (item?.label || key) + '';
-      img.src = item.img;
-    }
+const modelSel = document.getElementById('model');
+const reprSel = document.getElementById('repr');
+const diffSel = document.getElementById('Difficulty level');
+const scoreSel = document.getElementById('score');
+const img = document.getElementById('scoreImg');
+const titleEl = document.getElementById('title');
+const subtitleEl = document.getElementById('subtitle');
 
-    subsetSel.addEventListener('change', () => { fillSeeds(); fillScores(); updateView(); });
-    seedSel.addEventListener('change', () => { fillScores(); updateView(); });
-    scoreSel.addEventListener('change', updateView);
+function fillScores() {
+  const repr = reprSel.value;
+  const diff = diffSel.value;
+  const items = (DATA[repr]?.Difficulty?.[diff]?.items) || [];
+  scoreSel.innerHTML = items.map(it => `<option value="${it.key}">${it.key}</option>`).join('');
+}
 
-    fillSeeds();
-    fillScores();
-    updateView();
-  </script>
+function updateView() {
+  const repr = reprSel.value;
+  const diff = diffSel.value;
+  const key = scoreSel.value;
+  const diffObj = DATA[repr]?.Difficulty?.[diff];
+  if (!diffObj) return;
+  const item = diffObj.items.find(i => i.key == key) || diffObj.items[0];
+  titleEl.textContent = diffObj.title;
+  subtitleEl.textContent = item.label;
+  img.src = item.img;
+}
+
+reprSel.addEventListener('change', () => { fillScores(); updateView(); });
+diffSel.addEventListener('change', () => { fillScores(); updateView(); });
+scoreSel.addEventListener('change', updateView);
+
+fillScores();
+updateView();
+</script>
+
 </body>
 </html>
