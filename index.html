@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Score Viewer · 乐谱图片切换示例</title>
+  <title>MDRM Score Viewer</title>
   <style>
     :root{
       --bg:#fafafa;--card:#fff;--text:#222;--muted:#6b7280;--primary:#e11d48;--ring:rgba(225,29,72,.2);
@@ -20,9 +20,10 @@
     select{border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:6px 10px;font-size:14px;background:var(--card);color:var(--text)}
     select:focus{outline:none;box-shadow:0 0 0 4px var(--ring)}
     .title{font-size:28px;text-align:center;margin:28px 0 8px}
-    .subtitle{font-size:12px;color:var(--muted);text-align:center;margin:0 0 18px}
+    .subtitle{font-size:12px;color:var(--muted);text-align:center;margin:0 0 6px}
+    .current{font-size:14px;text-align:center;color:#374151;margin-bottom:18px}
     .sheetWrap{background:var(--card);border-radius:var(--radius);border:var(--line);box-shadow:var(--shadow);padding:8px 8px 16px}
-    .sheet{display:block;margin:0 auto;max-width:100%;transform-origin:top center}
+    .sheet{display:block;margin:0 auto;max-width:100%;transform-origin:top center;transition:opacity .3s ease-in-out}
     .legend{margin-top:22px;background:var(--card);border:var(--line);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px}
     .legend h3{margin:0 0 8px}
     .row{display:flex;gap:8px;align-items:center;margin:8px 0}
@@ -32,19 +33,94 @@
 <body>
   <div class="container">
     <header>
-      <p>选择不同的模型与难度等级，即可查看对应的乐谱图片示例。</p>
+      <p>Visualization of Difficulty Across Different Structural Patterns of Musical Scores</p>
     </header>
 
     <section class="grid">
       <div class="card">
-        <h2>Select method</h2>
+        <h2>Select model</h2>
         <div class="row">
           <label for="model">Model:</label>
           <select id="model">
-            <option>PSR</option>
-            <option>PDR</option>
+            <option>MDRM</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Select score</h2>
+        <div class="row">
+          <label for="difficulty">Difficulty level:</label>
+          <select id="difficulty">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
           </select>
         </div>
         <div class="row">
-          <label for="repr">Representation:</label>
-          <select id="repr">
+          <label for="score">Score:</label>
+          <select id="score"></select>
+        </div>
+      </div>
+    </section>
+
+    <h1 class="title" id="title">MDRM — Score Viewer</h1>
+    <p class="subtitle" id="subtitle">1.midi</p>
+    <p class="current" id="currentDisplay">Currently showing: Difficulty 1 – Score 1</p>
+
+    <section class="sheetWrap">
+      <img id="scoreImg" class="sheet" src="images/score1.png" alt="score image"/>
+    </section>
+
+    <!-- 保持原始说明完全一致 -->
+    <section class="legend">
+      <h3>Notes:</h3>
+      <ul>
+        <li>The filled-in background box represents a complete unit of the music structure obtained based on the weight distribution curve.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    // Difficulty → Score mapping
+    function scoreRange(diff) {
+      const map = {1:[1,2], 2:[3,4], 3:[5,6], 4:[7,8]};
+      return map[diff] || [];
+    }
+
+    const diffSel = document.getElementById('difficulty');
+    const scoreSel = document.getElementById('score');
+    const img = document.getElementById('scoreImg');
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+    const currentEl = document.getElementById('currentDisplay');
+
+    function fillScores() {
+      const diff = diffSel.value;
+      const range = scoreRange(diff);
+      scoreSel.innerHTML = range.map(n => `<option value=\"${n}\">${n}</option>`).join('');
+    }
+
+    function updateView() {
+      const diff = diffSel.value;
+      const score = Number(scoreSel.value);
+      titleEl.textContent = `MDRM — Difficulty ${diff}`;
+      subtitleEl.textContent = `${score}.midi`;
+      currentEl.textContent = `Currently showing: Difficulty ${diff} – Score ${score}`;
+      img.style.opacity = 0;
+      setTimeout(()=> {
+        img.src = `images/score${score}.png`;
+        img.onload = ()=>{ img.style.opacity = 1; };
+      },150);
+    }
+
+    diffSel.addEventListener('change', () => { fillScores(); updateView(); });
+    scoreSel.addEventListener('change', updateView);
+
+    // Init
+    fillScores();
+    updateView();
+  </script>
+</body>
+</html>
