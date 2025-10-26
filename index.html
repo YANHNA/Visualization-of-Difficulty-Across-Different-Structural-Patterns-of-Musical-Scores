@@ -41,16 +41,13 @@
         <h2>Select method</h2>
         <div class="row"><label for="model">Model:</label>
           <select id="model">
-            <option>deepgru</option>
-            <option>transformer</option>
-            <option>baseline</option>
+            <option>MDRM</option>
           </select>
         </div>
         <div class="row"><label for="repr">Representation:</label>
           <select id="repr">
-            <option>P-V</option>
-            <option>P-T</option>
-            <option>Note-Seq</option>
+            <option>phrase</option>
+            <option>pitch contour and rhythmic pattern</option>
           </select>
         </div>
       </div>
@@ -82,8 +79,7 @@
     <section class="legend">
       <h3>LEGEND:</h3>
       <ul>
-        <li>下拉框会切换不同的乐谱 <em>图片文件</em>（并非实时渲染乐谱）。</li>
-        <li>你可以将自己的图片放入 <code>images/</code> 目录，并在下方 JS 的 <code>DATA</code> 中配置。</li>
+        <li>The filled-in background box represents a complete unit of the music structure obtained based on the weight distribution curve.</li>
       </ul>
     </section>
   </div>
