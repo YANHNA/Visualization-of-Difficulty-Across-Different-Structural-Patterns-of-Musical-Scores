@@ -54,13 +54,15 @@
 
       <div class="card">
         <h2>Select score</h2>
-        <div class="row"><label for="difficulty">Difficulty level:</label>
-          <select id="Difficulty level">
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
+<label for="difficulty">Difficulty level:</label>
+<select id="difficulty">
+  <option value="1" selected>1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+</select>
+
+
         </div>
         <div class="row"><label for="score">Score:</label>
           <select id="score"></select>
@@ -84,75 +86,66 @@
   </div>
 
   <script>
-const DATA = {
-  phrase: {
-    Difficulty: {
-      1: { title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         },
-      2: { title: 'Prelude in C — Demo',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         },
-      3: { title: 'Prelude in C — Demo',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         },
-      4: { title: 'Prelude in C — Demo',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         }
-    }
-  },
-  "pitch contour and rhythmic pattern": {
-    Difficulty: {
-      1: { title: 'Six Unison Melodies, no. 5, Mikrokosmos, Sz. 107',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         },
-      2: { title: 'Prelude in C — Demo',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         },
-      3: { title: 'Prelude in C — Demo',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         },
-      4: { title: 'Prelude in C — Demo',
-           items: Array.from({length:16}, (_,i)=>({key:String(i+1), img:`images/score${i+1}.png`, label:`${i+1}.midi`}))
-         }
-    }
+// 映射规则（按你的需求）
+function scoreRange(repr, diff) {
+  diff = Number(diff);
+  if (repr === 'phrase') {
+    const map = {1:[1,2], 2:[3,4], 3:[5,6], 4:[7,8]};
+    return map[diff] || [];
   }
-};
+  if (repr === 'pitch contour and rhythmic pattern') {
+    const map = {1:[9,10], 2:[11,12], 3:[13,14], 4:[15,16]};
+    return map[diff] || [];
+  }
+  return [];
+}
 
-const modelSel = document.getElementById('model');
+// DOM
 const reprSel = document.getElementById('repr');
-const diffSel = document.getElementById('Difficulty level');
+const diffSel = document.getElementById('difficulty');   // ← 注意这里用的是不含空格的新 id
 const scoreSel = document.getElementById('score');
 const img = document.getElementById('scoreImg');
 const titleEl = document.getElementById('title');
 const subtitleEl = document.getElementById('subtitle');
 
+// 根据当前选择填充 Score 下拉
 function fillScores() {
   const repr = reprSel.value;
   const diff = diffSel.value;
-  const items = (DATA[repr]?.Difficulty?.[diff]?.items) || [];
-  scoreSel.innerHTML = items.map(it => `<option value="${it.key}">${it.key}</option>`).join('');
+  const range = scoreRange(repr, diff);  // 例如 [3,4]
+  scoreSel.innerHTML = range.map(n => `<option value="${n}">${n}</option>`).join('');
 }
 
+// 更新标题与图片
 function updateView() {
   const repr = reprSel.value;
   const diff = diffSel.value;
-  const key = scoreSel.value;
-  const diffObj = DATA[repr]?.Difficulty?.[diff];
-  if (!diffObj) return;
-  const item = diffObj.items.find(i => i.key == key) || diffObj.items[0];
-  titleEl.textContent = diffObj.title;
-  subtitleEl.textContent = item.label;
-  img.src = item.img;
+  const score = Number(scoreSel.value);
+
+  // 标题（你可按需自定义）
+  const titles = {
+    phrase: 'Phrase Representation — Demo',
+    'pitch contour and rhythmic pattern': 'Pitch contour & rhythmic pattern — Demo'
+  };
+  titleEl.textContent = titles[repr] || 'Score Title';
+
+  // 文件名标签（展示 .midi 名称）
+  subtitleEl.textContent = `${score}.midi`;
+
+  // 图片：按约定从 images/score{n}.png 读取
+  img.src = `images/score${score}.png`;
 }
 
+// 事件
 reprSel.addEventListener('change', () => { fillScores(); updateView(); });
 diffSel.addEventListener('change', () => { fillScores(); updateView(); });
 scoreSel.addEventListener('change', updateView);
 
+// 初始化
 fillScores();
 updateView();
 </script>
+
 
 </body>
 </html>
